@@ -36,6 +36,7 @@ export class RegistroMaestrosComponent implements OnInit{
     {value: '10', nombre: 'Administración de S.O.'},
   ];
 
+  //Arreglo para seleccionar area de investigación
   public area_investigacion:any[] = [
     {value: '1', nombre: 'Desarrollo Web'},
     {value: '2', nombre: 'Programación'},
