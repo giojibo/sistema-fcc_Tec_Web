@@ -59,7 +59,22 @@ export class FacadeService {
   }
 
   //Servicios para login y para cerrar sesión
+  //Iniciar sesión
+  login(username:String, password:String): Observable <any>{
+    var data = {
+      username: username,
+      password: password
+    }
+    return this.http.post<any>(`${environment.url_api}/token/`, data);
+  }
 
+  //Cerrar sesión
+  logout(): Observable<any> {
+    var headers: any;
+    var token = this.getSessionToken();
+    headers = new HttpHeaders({'Content-Type': 'application/json', 'Authorization': 'Bearer '+token})
+    return this.http.get<any>(`${environment.url_api}/logout/`, {headers: headers});
+  }
 
   //Funciones para las cookies y para datos de inicio de sesión
   //Funciones para utilizar las cookies en web
