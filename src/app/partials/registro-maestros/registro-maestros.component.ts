@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MaestrosService } from 'src/app/services/maestros.service';
 
 declare var $:any;
@@ -46,7 +47,8 @@ export class RegistroMaestrosComponent implements OnInit{
   ];
 
   constructor(
-    private maestroService: MaestrosService
+    private maestroService: MaestrosService,
+    private router: Router
   ){}
 
   ngOnInit(): void {
@@ -65,6 +67,24 @@ export class RegistroMaestrosComponent implements OnInit{
     this.errors = this.maestroService.validarMaestro(this.maestro, this.editar)
     if(!$.isEmptyObject(this.errors)){
       return false;
+  }
+
+  if(this.maestro.password == this.maestro.confirmar_password){
+    //Si todo es correcto vamos a registrar - se manda a consumir el servicio
+    this.maestroService.registrarMaestro(this.maestro).subscribe(
+      (response)=>{
+        alert("Usuario registrado correctamente");
+        console.log("Usuario registrado: ", response);
+        this.router.navigate(["/"]);
+      }, (error)=>{
+          alert("No se pudo registrar el usuario");
+      }
+    );
+  }
+  else{
+    alert("Las contraseñas no coinciden");
+    this.maestro.password="";
+    this.maestro.confirmar_password="";
   }
   }
 

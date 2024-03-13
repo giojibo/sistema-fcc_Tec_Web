@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ValidatorService } from './tools/validator.service';
 import { ErrorsService } from './tools/errors.service';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+const httpOptions = {
+  headers: new HttpHeaders ({'Content-Type': 'application/json' })
+};
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +20,7 @@ export class MaestrosService {
     this._errorService = value;
   }
   constructor(
+    private http: HttpClient,
     private validatorService: ValidatorService,
     private _errorService: ErrorsService
   ) { }
@@ -20,8 +28,8 @@ export class MaestrosService {
     return {
       'rol':'',
       'id_trabajador': '',
-      'nombre': '',
-      'apellidos': '',
+      'first_name': '',
+      'last_name': '',
       'email': '',
       'password': '',
       'confirmar_password': '',
@@ -42,12 +50,12 @@ export class MaestrosService {
       error["id_trabajador"] = this.errorService.required;
     }
 
-    if(!this.validatorService.required(data["nombre"])){
-      error["nombre"] = this.errorService.required;
+    if(!this.validatorService.required(data["first_name"])){
+      error["first_name"] = this.errorService.required;
     }
 
-    if(!this.validatorService.required(data["apellidos"])){
-      error["apellidos"] = this.errorService.required;
+    if(!this.validatorService.required(data["last_name"])){
+      error["last_name"] = this.errorService.required;
     }
 
     if(!this.validatorService.required(data["email"])){
@@ -102,5 +110,8 @@ export class MaestrosService {
     }
     //Return arreglo
     return error;
+  }
+  public registrarMaestro(data: any): Observable <any>{
+    return this.http.post<any>(`${environment.url_api}/maestro/`,data, httpOptions);
   }
 }

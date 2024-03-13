@@ -1,5 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AlumnosService } from 'src/app/services/alumnos.service';
+import { Router } from '@angular/router';
+
 declare var $:any;
 
 @Component({
@@ -23,7 +25,8 @@ export class RegistroAlumnosComponent implements OnInit{
 
   constructor(
 
-    private alumnosService: AlumnosService
+    private alumnosService: AlumnosService,
+    private router: Router
   ){
 
   }
@@ -83,6 +86,23 @@ export class RegistroAlumnosComponent implements OnInit{
       return false;
     }
 
+    if(this.alumnos.password == this.alumnos.confirmar_password){
+      //Si todo es correcto vamos a registrar - se manda a consumir el servicio
+      this.alumnosService.registrarAlumno(this.alumnos).subscribe(
+        (response)=>{
+          alert("Usuario registrado correctamente");
+          console.log("Usuario registrado: ", response);
+          this.router.navigate(["/"]);
+        }, (error)=>{
+            alert("No se pudo registrar el usuario");
+        }
+      );
+    }
+    else{
+      alert("Las contraseñas no coinciden");
+      this.alumnos.password="";
+      this.alumnos.confirmar_password="";
+    }
   }
 
   public actualizar(){

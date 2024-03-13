@@ -14,15 +14,15 @@
 
         <mat-form-field class="mat-input" appearance="outline">
             <mat-label>Nombre</mat-label>
-            <input matInput [(ngModel)]="maestro.nombre" placeholder="Escribe tu nombre">
+            <input matInput [(ngModel)]="maestro.first_name" placeholder="Escribe tu nombre">
         </mat-form-field>
-        <div *ngIf="errors.nombre" class="invalid-feedback">{{ errors.nombre }}</div>
+        <div *ngIf="errors.nombre" class="invalid-feedback">{{ errors.first_name }}</div>
 
         <mat-form-field class="mat-input" appearance="outline">
           <mat-label>Apellidos</mat-label>
-          <input matInput [(ngModel)]="maestro.apellidos" placeholder="Escribe tus apellidos">
+          <input matInput [(ngModel)]="maestro.last_name" placeholder="Escribe tus apellidos">
         </mat-form-field>
-        <div *ngIf="errors.apellidos" class="invalid-feedback">{{ errors.apellidos }}</div>
+        <div *ngIf="errors.apellidos" class="invalid-feedback">{{ errors.last_name }}</div>
         <!-- TODO:Poner todos los campos faltantes -->
 
         <mat-form-field class="mat-input" appearance="outline">
