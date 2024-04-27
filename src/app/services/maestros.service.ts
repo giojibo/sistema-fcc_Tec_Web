@@ -4,6 +4,7 @@ import { ErrorsService } from './tools/errors.service';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { FacadeService } from './facade.service';
 
 const httpOptions = {
   headers: new HttpHeaders ({'Content-Type': 'application/json' })
@@ -22,7 +23,8 @@ export class MaestrosService {
   constructor(
     private http: HttpClient,
     private validatorService: ValidatorService,
-    private _errorService: ErrorsService
+    private _errorService: ErrorsService,
+    public facadeService: FacadeService
   ) { }
   public esquemaMaestro(){
     return {
@@ -113,5 +115,26 @@ export class MaestrosService {
   }
   public registrarMaestro(data: any): Observable <any>{
     return this.http.post<any>(`${environment.url_api}/maestro/`,data, httpOptions);
+  }
+  public obtenerListaMaestros (): Observable <any>{
+    var token = this.facadeService.getSessionToken();
+    var headers = new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': 'Bearer '+token});
+    return this.http.get<any>(`${environment.url_api}/lista-maestro/`, {headers:headers});
+  }
+
+  public getMaestroByID(idUser: Number){
+    return this.http.get<any>(`${environment.url_api}/maestro/?id=${idUser}`,httpOptions);
+  }
+   //Servicio para actualizar un usuario
+   public editarMaestro (data: any): Observable <any>{
+    var token = this.facadeService.getSessionToken();
+    var headers = new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': 'Bearer '+token});
+    return this.http.put<any>(`${environment.url_api}/maestro-edit/`, data, {headers:headers});
+  }
+  //Eliminar Maestro
+  public eliminarMaestro(idUser: number): Observable <any>{
+    var token = this.facadeService.getSessionToken();
+    var headers = new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': 'Bearer '+token});
+    return this.http.delete<any>(`${environment.url_api}/maestro-edit/?id=${idUser}`,{headers:headers});
   }
 }

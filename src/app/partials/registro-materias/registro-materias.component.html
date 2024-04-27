@@ -1,0 +1,80 @@
+<div class="wrapper">
+  <!-- Va a englobar todo el formulario con la cabecera -->
+  <div class="section-registro">
+      <div class="body-registro">
+        <div class="row mt-3 mb-3">
+          <div class="form-group col-12">
+            <label class="title-user" for="tipo_usuario">Ingresa los datos de la materia</label>
+          </div>
+        </div>
+        <mat-form-field class="mat-input" appearance="outline">
+            <mat-label>NRC</mat-label>
+            <input matInput [(ngModel)]="materia.nrc" mask="00000" name="id" placeholder="Escribe el NRC" [disabled]="editar">
+        </mat-form-field>
+        <div *ngIf="errors.nrc" class="invalid-feedback">{{ errors.nrc }}</div>
+
+        <mat-form-field class="mat-input" appearance="outline">
+            <mat-label>Nombre de la materia</mat-label>
+            <input matInput [(ngModel)]="materia.nombre" placeholder="Escribe nombre de la materia">
+        </mat-form-field>
+        <div *ngIf="errors.nombre" class="invalid-feedback">{{ errors.nombre }}</div>
+
+        <mat-form-field class="mat-input" appearance="outline">
+            <mat-label>Sección</mat-label>
+            <input matInput [(ngModel)]="materia.seccion" placeholder="Escribe la sección">
+        </mat-form-field>
+        <div *ngIf="errors.seccion" class="invalid-feedback">{{ errors.seccion }}</div>
+
+          <div class="select-dias">
+          <div class="row mt-3 mb-3">
+            <div class="form-group col-12">
+              <label class="title-dias" for="tipo_usuario">Selecciona las materias a impartir</label>
+            </div>
+          </div>
+          <div class="checkbox-group" *ngFor="let dia of dias; let i = index">
+            <mat-checkbox class="checkbox-item opc-sc" name="opsc" (change)="checkboxChange($event)" value="{{dia.nombre}}" [checked]="revisarSeleccion(dia.nombre)">
+                <div class="d-checkbox-nombre">{{dia.nombre}}</div>
+            </mat-checkbox>
+          </div>
+          <div *ngIf="errors.dias" class="invalid-feedback">{{errors.dias}}</div>
+        </div>
+          <div class="row mt-3 mb-3">
+            <div class="form-group col-12">
+              <label class="title-horario">Ingrese horario</label>
+            </div>
+          </div>
+          <mat-form-field class="mat-input" appearance="outline">
+              <mat-label>Horario inicial</mat-label>
+              <input matInput [(ngModel)]="materia.hora_inicio" placeholder="Ingrese la hora de inicio" aria-label="24hr format" [ngxTimepicker]="inicio" [format]="24" readonly>
+              <ngx-material-timepicker #inicio></ngx-material-timepicker>
+          </mat-form-field>
+          <div *ngIf="errors.hora_inicio" class="invalid-feedback">{{errors.hora_inicio}}</div>
+
+          <mat-form-field class="mat-input" appearance="outline">
+              <mat-label>Horario final</mat-label>
+              <input matInput [(ngModel)]="materia.hora_final" placeholder="Ingrese la hora de fin" aria-label="12hr format" [ngxTimepicker]="final"  [format]="24" readonly>
+              <ngx-material-timepicker #final></ngx-material-timepicker>
+          </mat-form-field>
+          <div *ngIf="errors.hora_final" class="invalid-feedback">{{errors.hora_final}}</div>
+          <mat-form-field class="mat-input" appearance="outline">
+              <mat-label>Salón</mat-label>
+              <input matInput [(ngModel)]="materia.salon" placeholder="Escribe salon" style="text-transform: uppercase;">
+          </mat-form-field>
+          <div *ngIf="errors.salon" class="invalid-feedback">{{ errors.salon }}</div>
+
+          <mat-form-field class="mat-input" appearance="outline">
+            <mat-label>Programa</mat-label>
+            <mat-select [(ngModel)]="materia.programa">
+              <mat-option *ngFor="let programa of programas" [value]="programa.nombre">{{ programa.nombre }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div *ngIf="errors.programa" class="invalid-feedback"> {{errors.programa}} </div>
+
+          <div class="section-buttons">
+              <button class="btn btn-danger" (click)="regresar()">Cancelar</button>
+            <button *ngIf="!editar" class="btn btn-primary" type="submit" (click)="registrar()">Registrar</button>
+            <button *ngIf="editar" class="btn btn-primary" type="submit" (click)="actualizar()">Actualizar</button>
+          </div>
+      </div>
+  </div>
+</div>

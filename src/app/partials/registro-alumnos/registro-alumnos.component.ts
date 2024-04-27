@@ -1,6 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AlumnosService } from 'src/app/services/alumnos.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FacadeService } from 'src/app/services/facade.service';
+import { Location } from '@angular/common'
+import { MatDialog } from '@angular/material/dialog';
+import { EditarUserModalComponent } from 'src/app/modals/editar-user-modal/editar-user-modal.component';
 
 declare var $:any;
 
@@ -11,6 +15,7 @@ declare var $:any;
 })
 export class RegistroAlumnosComponent implements OnInit{
   @Input() rol: string = "";
+  @Input() datos_user: any = {};
 
   //Para contraseñas
   public hide_1: boolean = false;
@@ -22,25 +27,39 @@ export class RegistroAlumnosComponent implements OnInit{
   public errors:any={};
   public editar:boolean = false;
   public idUser: Number = 0;
+  public token: string = "";
 
   constructor(
 
     private alumnosService: AlumnosService,
-    private router: Router
+    private router: Router,
+    public activatedRoute: ActivatedRoute,
+    private facadeService: FacadeService,
+    private location : Location,
+    public dialog: MatDialog
   ){
 
   }
 
   ngOnInit() {
-    this.alumnos = this.alumnosService.esquemaAlumnos();
-    this.alumnos.rol = this.rol;
-    //El primer if valida si existe un parámetro en la URL
+    if(this.activatedRoute.snapshot.params['id'] != undefined){
+      this.editar = true;
+      //Asignamos a nuestra variable global el valor del ID que viene por la URL
+      this.idUser = this.activatedRoute.snapshot.params['id'];
+      console.log("ID User: ", this.idUser);
+      //Al iniciar la vista asignamos los datos del user
+      this.alumnos = this.datos_user;
+    }else{
+      this.alumnos = this.alumnosService.esquemaAlumnos();
+      this.alumnos.rol = this.rol;
+      this.token = this.facadeService.getSessionToken();
+    }
     //Imprimir datos en consola
     console.log("Alumno: ", this.alumnos);
   }
 
   public regresar(){
-
+    this.location.back();
   }
 
   //Funciones para password
@@ -105,8 +124,57 @@ export class RegistroAlumnosComponent implements OnInit{
     }
   }
 
-  public actualizar(){
+ /* public actualizar(){
+    //Validación
+    this.errors = [];
 
+    this.errors = this.alumnosService.validarAlumno(this.alumnos, this.editar);
+
+    if(!$.isEmptyObject(this.errors)){
+      return false;
+    }
+    console.log("Pasó la validación");
+
+    this.alumnosService.editarAlumno(this.alumnos).subscribe(
+      (response)=>{
+        alert("Alumno editado correctamente");
+        console.log("Alumno editado: ", response);
+        //Si se editó, entonces mandar al home
+        this.router.navigate(["home"]);
+      }, (error)=>{
+        alert("No se pudo editar el alumno");
+      }
+    );
+  } */
+
+  public actualizar() {
+    // Validación
+    this.errors = [];
+    this.errors = this.alumnosService.validarAlumno(this.alumnos, this.editar);
+
+    if (!$.isEmptyObject(this.errors)) {
+      return false;
+    }
+
+    console.log("Pasó la validación");
+
+    const dialogRef = this.dialog.open(EditarUserModalComponent, {
+      data: { id: this.alumnos, rol: 'alumno' }, // Pasar valores al componente modal
+      height: '288px',
+      width: '328px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.isEdit) {
+        console.log("Alumno editado");
+        // Recargar página o redirigir al home
+        this.router.navigate(["home"]);
+      } else {
+        alert("Alumno no editado ");
+        console.log("No se editó el alumno");
+      }
+    });
   }
-
 }
+
+

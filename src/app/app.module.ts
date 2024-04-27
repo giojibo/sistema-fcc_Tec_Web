@@ -27,12 +27,21 @@ import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+
 import { HomeScreensComponent } from './screens/home-screens/home-screens.component';
 import { AdminScreenComponent } from './screens/admin-screen/admin-screen.component';
 //import { AlumnosScreenComponent } from './screens/alumnos-screen/alumnos-screen.component';
 //import { MaestrosScreenComponent } from './screens/maestros-screen/maestros-screen.component';
 import { AlumnosScreenComponent } from './screens/alumnos-screen/alumnos-screen.component';
 import { MaestrosScreenComponent } from './screens/maestros-screen/maestros-screen.component';
+import { EliminarUserModalComponent } from './modals/eliminar-user-modal/eliminar-user-modal.component';
+import { GraficasScreenComponent } from './screens/graficas-screen/graficas-screen.component';
+import { RegistroMateriasComponent } from './partials/registro-materias/registro-materias.component';
+import { MateriasScreenComponent } from './screens/materias-screen/materias-screen.component';
+import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
+import { EditarUserModalComponent } from './modals/editar-user-modal/editar-user-modal.component';
+import { EditarMateriasModalComponent } from './modals/editar-materias-modal/editar-materias-modal.component';
+import { EliminarMateriasModalsComponent } from './modals/eliminar-materias-modals/eliminar-materias-modals.component';
 
 @NgModule({
   declarations: [
@@ -48,7 +57,14 @@ import { MaestrosScreenComponent } from './screens/maestros-screen/maestros-scre
  //   AlumnosScreenComponent,
   //  MaestrosScreenComponent,
     AlumnosScreenComponent,
-    MaestrosScreenComponent
+    MaestrosScreenComponent,
+    EliminarUserModalComponent,
+    GraficasScreenComponent,
+    RegistroMateriasComponent,
+    MateriasScreenComponent,
+    EditarUserModalComponent,
+    EditarMateriasModalComponent,
+    EliminarMateriasModalsComponent
   ],
   imports: [
     BrowserModule,
@@ -67,7 +83,8 @@ import { MaestrosScreenComponent } from './screens/maestros-screen/maestros-scre
     HttpClientModule,
     MatCheckboxModule,
     MatDialogModule,
-    MatSelectModule
+    MatSelectModule,
+    NgxMaterialTimepickerModule
 
   ],
   providers: [],

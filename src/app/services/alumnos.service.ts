@@ -4,6 +4,7 @@ import { ErrorsService } from './tools/errors.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { FacadeService } from './facade.service';
 
 const httpOptions = {
   headers: new HttpHeaders ({'Content-Type': 'application/json' })
@@ -13,11 +14,19 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class AlumnosService {
+  public get errorService(): ErrorsService{
+    return this._errorService;
+  }
+  public set errorsService(value: ErrorsService){
+    this._errorService = value;
+  }
 
   constructor(
     private http: HttpClient,
     private validatorService: ValidatorService,
-    private errorService: ErrorsService
+    private _errorService: ErrorsService,
+    public facadeService: FacadeService
+
   ) { }
 
   public esquemaAlumnos(){
@@ -114,9 +123,32 @@ export class AlumnosService {
 
     //Return arreglo
     return error;
+
   }
 
   public registrarAlumno(data: any): Observable <any>{
     return this.http.post<any>(`${environment.url_api}/alumno/`,data, httpOptions);
+  }
+
+  public obtenerListaAlumnos (): Observable <any>{
+    var token = this.facadeService.getSessionToken();
+    var headers = new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': 'Bearer '+token});
+    return this.http.get<any>(`${environment.url_api}/lista-alumno/`, {headers:headers});
+  }
+
+  public getAlumnoByID(idUser: Number){
+    return this.http.get<any>(`${environment.url_api}/alumno/?id=${idUser}`,httpOptions);
+  }
+  //Servicio para actualizar un usuario
+  public editarAlumno (data: any): Observable <any>{
+    var token = this.facadeService.getSessionToken();
+    var headers = new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': 'Bearer '+token});
+    return this.http.put<any>(`${environment.url_api}/alumno-edit/`, data, {headers:headers});
+  }
+  //Eliminar Alumno
+  public eliminarAlumno(idUser: number): Observable <any>{
+    var token = this.facadeService.getSessionToken();
+    var headers = new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': 'Bearer '+token});
+    return this.http.delete<any>(`${environment.url_api}/alumno-edit/?id=${idUser}`,{headers:headers});
   }
 }

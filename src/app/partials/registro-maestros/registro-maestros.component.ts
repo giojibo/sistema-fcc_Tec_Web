@@ -1,7 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FacadeService } from 'src/app/services/facade.service';
 import { MaestrosService } from 'src/app/services/maestros.service';
+import { Location } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { EditarUserModalComponent } from 'src/app/modals/editar-user-modal/editar-user-modal.component';
 
 declare var $:any;
 
@@ -12,16 +16,21 @@ declare var $:any;
 })
 export class RegistroMaestrosComponent implements OnInit{
   @Input() rol:string = "";
+  @Input() datos_user: any = {};
 
   public maestro:any = {};
+  public token: string = "";
   public editar:boolean = false;
   public errors:any = {};
+  public idUser: Number = 0;
+
   //Para contraseñas
   public hide_1: boolean = false;
   public hide_2: boolean = false;
   public inputType_1: string = 'password';
   public inputType_2: string = 'password';
   public seleccion = new FormControl;
+  public materias_json: any [] = [];
 
   //Array para materias - checkbox
   public materias:any[]= [
@@ -47,18 +56,34 @@ export class RegistroMaestrosComponent implements OnInit{
   ];
 
   constructor(
+    private location : Location,
     private maestroService: MaestrosService,
-    private router: Router
+    private router: Router,
+    public activatedRoute: ActivatedRoute,
+    private facadeService: FacadeService,
+    public dialog: MatDialog
   ){}
 
   ngOnInit(): void {
-    this.maestro = this.maestroService.esquemaMaestro();
-    this.maestro.rol = this.rol;
+    //El primer if valida si existe un parámetro en la URL
+    if(this.activatedRoute.snapshot.params['id'] != undefined){
+      this.editar = true;
+      //Asignamos a nuestra variable global el valor del ID que viene por la URL
+      this.idUser = this.activatedRoute.snapshot.params['id'];
+      console.log("ID User: ", this.idUser);
+      //Al iniciar la vista asignamos los datos del user
+      this.maestro = this.datos_user;
+    }else{
+      this.maestro = this.maestroService.esquemaMaestro();
+      this.maestro.rol = this.rol;
+      this.token = this.facadeService.getSessionToken();
+    }
+    //Imprimir datos en consola
     console.log("Maestro: ", this.maestro);
   }
 
   public regresar(){
-
+    this.location.back();
   }
 
   public registrar(){
@@ -88,9 +113,28 @@ export class RegistroMaestrosComponent implements OnInit{
   }
   }
 
-  public actualizar(){
+  /*public actualizar(){
+    //Validación
+    this.errors = [];
 
+    this.errors = this.maestroService.validarMaestro(this.maestro, this.editar);
+    if(!$.isEmptyObject(this.errors)){
+      return false;
+    }
+    console.log("Pasó la validación");
+
+    this.maestroService.editarMaestro(this.maestro).subscribe(
+      (response)=>{
+        alert("Maestro editado correctamente");
+        console.log("Maestro editado: ", response);
+        //Si se editó, entonces mandar al home
+        this.router.navigate(["home"]);
+      }, (error)=>{
+        alert("No se pudo editar el maestro");
+      }
+    );
   }
+*/
 
   public checkboxChange(event:any){
     //console.log("Evento: ", event);
@@ -142,5 +186,46 @@ export class RegistroMaestrosComponent implements OnInit{
   {
     console.log(event.value);
     this.maestro.area_investigacion = event.value;
+  }
+  public revisarSeleccion(nombre: string){
+    if(this.maestro.materias_json){
+      var busqueda = this.maestro.materias_json.find((element)=>element==nombre);
+      if(busqueda != undefined){
+        return true;
+      }else{
+        return false;
+      }
+    }else{
+      return false;
+    }
+  }
+
+  public actualizar() {
+    // Validación
+    this.errors = [];
+    this.errors = this.maestroService.validarMaestro(this.maestro, this.editar);
+
+    if (!$.isEmptyObject(this.errors)) {
+      return false;
+    }
+
+    console.log("Pasó la validación");
+
+    const dialogRef = this.dialog.open(EditarUserModalComponent, {
+      data: { id: this.maestro, rol: 'maestro' }, // Pasar valores al componente modal
+      height: '288px',
+      width: '328px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.isEdit) {
+        console.log("Maestro editado");
+        // Recargar página o redirigir al home
+        this.router.navigate(["home"]);
+      } else {
+        alert("Maestro no editado ");
+        console.log("No se editó el maestro");
+      }
+    });
   }
 }

@@ -1,6 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { AdministradoresService } from '../../services/administradores.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FacadeService } from 'src/app/services/facade.service';
+import { Location } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
+import { EditarUserModalComponent } from 'src/app/modals/editar-user-modal/editar-user-modal.component';
 //Para poder usar jquery definir esto
 declare var $:any;
 
@@ -11,31 +15,51 @@ declare var $:any;
 })
 export class RegistroAdminComponent implements OnInit{
   @Input() rol: string = "";
+  @Input() datos_user: any = {};
 
-  public admin:any ={};
-  public editar:boolean =false;
-  public errors:any = {};
   //Para contraseñas
   public hide_1: boolean = false;
   public hide_2: boolean = false;
   public inputType_1: string = 'password';
   public inputType_2: string = 'password';
 
+  public admin:any= {};
+  public token: string = "";
+  public errors:any={};
+  public editar:boolean = false;
+  public idUser: Number = 0;
+
   constructor(
+    private location : Location,
+    private router: Router,
+    public activatedRoute: ActivatedRoute,
     private administradoresService: AdministradoresService,
-    private router: Router
+    private facadeService: FacadeService,
+    public dialog: MatDialog
   ){}
 
   ngOnInit(): void {
-    //Definir el esquema a mi JSON
-    this.admin = this.administradoresService.esquemaAdmin();
-    this.admin.rol = this.rol;
+    //El primer if valida si existe un parámetro en la URL
+    if(this.activatedRoute.snapshot.params['id'] != undefined){
+      this.editar = true;
+      //Asignamos a nuestra variable global el valor del ID que viene por la URL
+      this.idUser = this.activatedRoute.snapshot.params['id'];
+      console.log("ID User: ", this.idUser);
+      //Al iniciar la vista asignamos los datos del user
+      this.admin = this.datos_user;
+    }else{
+      this.admin = this.administradoresService.esquemaAdmin();
+      this.admin.rol = this.rol;
+      this.token = this.facadeService.getSessionToken();
+    }
+    //Imprimir datos en consola
     console.log("Admin: ", this.admin);
+
 
   }
 
   public regresar(){
-
+    this.location.back();
   }
 
   public registrar(){
@@ -67,9 +91,27 @@ export class RegistroAdminComponent implements OnInit{
     }
   }
 
-  public actualizar(){
+  /*public actualizar(){
+    //Validación
+    this.errors = [];
 
-  }
+    this.errors = this.administradoresService.validarAdmin(this.admin, this.editar);
+    if(!$.isEmptyObject(this.errors)){
+      return false;
+    }
+    console.log("Pasó la validación");
+
+    this.administradoresService.editarAdmin(this.admin).subscribe(
+      (response)=>{
+        alert("Administrador editado correctamente");
+        console.log("Admin editado: ", response);
+        //Si se editó, entonces mandar al home
+        this.router.navigate(["home"]);
+      }, (error)=>{
+        alert("No se pudo editar el administrador");
+      }
+    );
+  }*/
 
   //Funciones para password
   showPassword()
@@ -94,5 +136,34 @@ export class RegistroAdminComponent implements OnInit{
       this.inputType_2 = 'password';
       this.hide_2 = false;
     }
+  }
+
+  public actualizar() {
+    // Validación
+    this.errors = [];
+    this.errors = this.administradoresService.validarAdmin(this.admin, this.editar);
+
+    if (!$.isEmptyObject(this.errors)) {
+      return false;
+    }
+
+    console.log("Pasó la validación");
+
+    const dialogRef = this.dialog.open(EditarUserModalComponent, {
+      data: { id: this.admin, rol: 'administrador' }, // Pasar valores al componente modal
+      height: '288px',
+      width: '328px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.isEdit) {
+        console.log("Admin editado");
+        // Recargar página o redirigir al home
+        this.router.navigate(["home"]);
+      } else {
+        alert("Administrador no editado ");
+        console.log("No se editó el admin");
+      }
+    });
   }
 }
